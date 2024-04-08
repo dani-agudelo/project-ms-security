@@ -61,3 +61,24 @@ public class SecurityController {
         return null;
     }
 }
+
+  @PostMapping("verify-2fa")
+  public String verify2fa(
+      @RequestBody HashMap<String, String> credentials, final HttpServletResponse response)
+      throws IOException {
+    Session session = this.securityService.validateCode2fa(credentials);
+    if (session != null) {
+      User currentUser = session.getUser();
+      String token = this.jwtService.generateToken(currentUser);
+
+      session.setToken(token);
+      session.setExpiration(jwtService.getExpiration(token));
+      sessionRepository.save(session);
+
+      response.setStatus(HttpServletResponse.SC_ACCEPTED);
+      return token;
+    }
+
+    response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+    return "";
+  }
