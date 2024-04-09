@@ -46,4 +46,21 @@ public class NotificationsService {
       return false;
     }
   }
+
+  /**
+   * Sends the generated code to the specified user's email.
+   *
+   * @param user the user to send the code to
+   * @param code the generated code
+   */
+  public boolean sendCodeByEmail(User user, String code) {
+    var body = new HashMap<String, String>();
+    mfaVerifyUrl = mfaVerifyUrl.replace("{userId}", user.get_id()).replace("{code2fa}", code);
+    body.put("email", user.getEmail());
+    body.put("username", user.getName());
+    body.put("verifyUrl", mfaVerifyUrl);
+    body.put("code", code);
+
+    return send(mfaUrl, body);
+  }
 }
