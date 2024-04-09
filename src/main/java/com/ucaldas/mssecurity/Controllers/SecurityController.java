@@ -1,5 +1,6 @@
 package com.ucaldas.mssecurity.Controllers;
 
+import com.ucaldas.mssecurity.Models.Permission;
 import com.ucaldas.mssecurity.Models.Session;
 import com.ucaldas.mssecurity.Models.User;
 import com.ucaldas.mssecurity.Repositories.SessionRepository;
@@ -9,6 +10,9 @@ import com.ucaldas.mssecurity.Services.JwtService;
 import com.ucaldas.mssecurity.Services.MfaService;
 import com.ucaldas.mssecurity.Services.NotificationsService;
 import com.ucaldas.mssecurity.Services.SecurityService;
+import com.ucaldas.mssecurity.Services.ValidatorsService;
+
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
@@ -19,14 +23,22 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/public/security")
 public class SecurityController {
-  @Autowired private JwtService jwtService;
-  @Autowired private MfaService mfaService;
-  @Autowired private SecurityService securityService;
-  @Autowired private EncryptionService encryptionService;
-  @Autowired private NotificationsService notificationsService;
-
-  @Autowired private SessionRepository sessionRepository;
-  @Autowired private UserRepository userRepository;
+  @Autowired
+  private JwtService jwtService;
+  @Autowired
+  private MfaService mfaService;
+  @Autowired
+  private SecurityService securityService;
+  @Autowired
+  private EncryptionService encryptionService;
+  @Autowired
+  private NotificationsService notificationsService;
+  @Autowired
+  private ValidatorsService theValidatorsService;
+  @Autowired
+  private SessionRepository sessionRepository;
+  @Autowired
+  private UserRepository userRepository;
 
   @PostMapping("login")
   public User login(@RequestBody User theUser, final HttpServletResponse response)
@@ -110,5 +122,12 @@ public class SecurityController {
 
     response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
     return null;
+  }
+
+  @PostMapping("/permissions-validation")
+  public boolean permissionsValidation(final HttpServletRequest request, @RequestBody Permission thePermission) {
+    boolean success = this.theValidatorsService.validationRolePermission(request, thePermission.getUrl(),
+        thePermission.getMethod());
+    return success;
   }
 }
