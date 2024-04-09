@@ -30,7 +30,7 @@ public class NotificationsService {
   /**
    * Sends a notification to the specified URL with the given body.
    *
-   * @param url  the URL to send the notification to
+   * @param url the URL to send the notification to
    * @param body the body of the notification
    */
   public boolean send(String url, HashMap<String, String> body) {
@@ -62,5 +62,21 @@ public class NotificationsService {
     body.put("code", code);
 
     return send(mfaUrl, body);
+  }
+
+  /**
+   * Sends the generated code to the specified user's email.
+   *
+   * @param user the user to send the code to
+   * @param newPassword the generated code
+   */
+  public boolean sendPasswordResetEmail(User user, String newPassword) {
+    var body = new HashMap<String, String>();
+    body.put("email", user.getEmail());
+    body.put("username", user.getName());
+    body.put("newPassword", newPassword);
+    body.put("resetUrl", passwordResetUrl);
+
+    return send(passwordUrl, body);
   }
 }
