@@ -8,6 +8,8 @@ import com.ucaldas.mssecurity.Services.EncryptionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import com.ucaldas.mssecurity.Services.ValidatorsService;
+import com.ucaldas.mssecurity.Exceptions.EmailAlreadyExistsException;
 
 import java.util.List;
 
@@ -23,6 +25,9 @@ public class UsersController {
     private RoleRepository theRoleRepository;
     @Autowired
     private EncryptionService theEncryptionService;
+    @Autowired
+    private ValidatorsService theValidatorService;
+
 
     // Maneja las peticiones GET a /users y devuelve una lista de usuarios
     @GetMapping("")
@@ -40,8 +45,12 @@ public class UsersController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public User create(@RequestBody User theNewUser) {
-        theNewUser.setPassword(theEncryptionService.convertSHA256(theNewUser.getPassword()));
-        return this.theUserRepository.save(theNewUser);
+        if (theValidatorService.isEmailAlreadyExists(theNewUser.getEmail())) {
+            throw new EmailAlreadyExistsException("El correo electrónico ya está en uso.");
+        } else {
+            theNewUser.setPassword(theEncryptionService.convertSHA256(theNewUser.getPassword()));
+            return this.theUserRepository.save(theNewUser);
+        }
     }
 
     /**

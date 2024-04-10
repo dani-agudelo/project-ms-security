@@ -83,4 +83,10 @@ public class ValidatorsService {
         }
         return theUser;
     }
+
+    public boolean isEmailAlreadyExists(String email) {
+        User theUser = theUserRepository.getUserByEmail(email);
+        return theUser != null;
+    }
+
 }
