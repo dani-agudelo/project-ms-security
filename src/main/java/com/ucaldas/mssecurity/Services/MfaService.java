@@ -12,7 +12,7 @@ public class MfaService {
    */
   public String generateCode() {
     return Stream.generate(() -> (int) (Math.random() * 10))
-        .limit(8) // 8 digits
+        .limit(6) // 6 digits
         .map(String::valueOf)
         .reduce("", String::concat);
   }

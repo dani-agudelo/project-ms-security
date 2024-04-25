@@ -101,7 +101,7 @@ public class UsersController {
     }
 
     /**
-     * Se encarga de modificar el rol de un usuario
+     * Se encarga de modificar o asignar el rol a un usuario
      * param roleId: id del rol
      * return: el usuario modificado o null
      */

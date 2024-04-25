@@ -32,7 +32,7 @@ public class EncryptionService {
   public String generatePassword() {
     String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     return Stream.generate(() -> (int) (Math.random() * alphabet.length()))
-        .limit(8) // 8 digits
+        .limit(6) // 6 digits
         .map(alphabet::charAt)
         .map(String::valueOf)
         .reduce("", String::concat);

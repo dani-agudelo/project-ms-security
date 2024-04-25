@@ -11,7 +11,7 @@ import java.util.List;
 @CrossOrigin
 @RestController
 // Maneja todas las solicitudes que comiencen con /roles
-@RequestMapping("/roles")
+@RequestMapping("/api/roles")
 public class RolesController {
     @Autowired // inyecta la dependencia
     private RoleRepository theRoleRepository;
