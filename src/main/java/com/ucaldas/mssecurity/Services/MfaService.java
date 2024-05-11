@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MfaService {
   /**
-   * Generates a random code consisting of 8 digits.
+   * Generates a random code consisting of 6 digits.
    *
    * @return the generated code as a string
    */
