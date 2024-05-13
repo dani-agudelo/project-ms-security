@@ -66,6 +66,14 @@ public class SecurityController {
     return null;
   }
 
+  /**
+   * Verifies the 2FA code sent by the user and returns a JWT token if the code is correct.
+   * Here, the code is sent in the request body.
+   * @param credentials
+   * @param response
+   * @return
+   * @throws IOException
+   */
   @PostMapping("verify-2fa")
   public String verify2fa(
       @RequestBody HashMap<String, String> credentials, final HttpServletResponse response)
@@ -87,6 +95,15 @@ public class SecurityController {
     return "";
   }
 
+  /**
+   * Verifies the 2FA code sent by the user and returns a JWT token if the code is correct.
+   * Here, the code is sent in the URL.
+   * @param userId
+   * @param code2fa
+   * @param response
+   * @return
+   * @throws IOException
+   */
   @PostMapping("users/{userId}/verify-2fa/{code2fa}")
   public String verify2fa(
       @PathVariable String userId, @PathVariable String code2fa, final HttpServletResponse response)
@@ -97,6 +114,13 @@ public class SecurityController {
     return this.verify2fa(credentials, response);
   }
 
+  /**
+   * Verifies the new password sent by the user and returns the user if the password is correct.
+   * @param credentials
+   * @param response
+   * @return the user
+   * @throws IOException
+   */
   @PostMapping("password-reset")
   public User passwordReset(
       @RequestBody HashMap<String, String> credentials, final HttpServletResponse response)
@@ -124,10 +148,25 @@ public class SecurityController {
     return null;
   }
 
+  /**
+   * Verifies if the user has the necessary permissions to access a resource.
+   * @param request
+   * @param thePermission
+   * @return
+   */
   @PostMapping("/permissions-validation")
   public boolean permissionsValidation(final HttpServletRequest request, @RequestBody Permission thePermission) {
     boolean success = this.theValidatorsService.validationRolePermission(request, thePermission.getUrl(),
         thePermission.getMethod());
     return success;
+  }
+
+  /**
+   * Validate the token and return the user.
+   */
+  @GetMapping("token-validation")
+  public User tokenValidation(final HttpServletRequest request) {
+    User thUser= this.theValidatorsService.getUser(request);
+    return thUser;
   }
 }
