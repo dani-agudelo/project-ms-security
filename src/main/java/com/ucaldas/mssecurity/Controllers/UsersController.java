@@ -28,7 +28,6 @@ public class UsersController {
   // Maneja las peticiones GET a /users y devuelve una lista de usuarios
   @GetMapping("")
   public List<User> findAll() {
-    System.out.println("Encontrar todos los usuarios");
     return this.theUserRepository.findAll();
   }
 
