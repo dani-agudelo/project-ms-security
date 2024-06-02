@@ -54,6 +54,10 @@ public class UsersController {
     if (theValidatorService.isEmailAlreadyExists(theNewUser.getEmail())) {
       throw new EmailAlreadyExistsException("El correo electrónico ya está en uso.");
     } else {
+      if (theNewUser.getPassword() == null) {
+        theNewUser.setPassword(theEncryptionService.generatePassword());
+      }
+
       theNewUser.setPassword(theEncryptionService.convertSHA256(theNewUser.getPassword()));
       return this.theUserRepository.save(theNewUser);
     }
