@@ -28,7 +28,6 @@ public class UsersController {
   // Maneja las peticiones GET a /users y devuelve una lista de usuarios
   @GetMapping("")
   public List<User> findAll() {
-    System.out.println("Encontrar todos los usuarios");
     return this.theUserRepository.findAll();
   }
 
@@ -55,6 +54,10 @@ public class UsersController {
     if (theValidatorService.isEmailAlreadyExists(theNewUser.getEmail())) {
       throw new EmailAlreadyExistsException("El correo electrónico ya está en uso.");
     } else {
+      if (theNewUser.getPassword() == null) {
+        theNewUser.setPassword(theEncryptionService.generatePassword());
+      }
+
       theNewUser.setPassword(theEncryptionService.convertSHA256(theNewUser.getPassword()));
       return this.theUserRepository.save(theNewUser);
     }
