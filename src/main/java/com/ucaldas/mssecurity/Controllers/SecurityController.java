@@ -40,33 +40,15 @@ public class SecurityController {
   @Autowired
   private UserRepository userRepository;
 
-  // @PostMapping("login")
-  // public User login(@RequestBody User theUser, final HttpServletResponse
-  // response)
-  // throws IOException {
-  // User currentUser = this.securityService.validateUser(theUser);
-
-  // if (currentUser != null) {
-  // String code2fa = this.mfaService.generateCode();
-  // boolean status = this.notificationsService.sendCodeByEmail(currentUser,
-  // code2fa);
-
-  // if (!status) {
-  // response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-  // return null;
-  // }
-
-  // Session currentSession = new Session(code2fa, currentUser);
-  // this.sessionRepository.save(currentSession);
-
-  // response.setStatus(HttpServletResponse.SC_ACCEPTED);
-  // currentUser.setPassword("");
-  // return currentUser;
-  // }
-
-  // response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-  // return null;
-  // }
+  
+  /**
+   * Validates the user's credentials and sends a 2FA code to the user's email.
+   * 
+   * @param theUser
+   * @param response
+   * @return
+   * @throws IOException
+   */
   @PostMapping("login")
   public User login(@RequestBody User theUser, final HttpServletResponse response)
       throws IOException {
@@ -93,39 +75,6 @@ public class SecurityController {
     response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
     return null;
   }
-
-  // @PostMapping("login")
-  // public HashMap<String, Object> login(@RequestBody User theUser, final
-  // HttpServletResponse response)
-  // throws IOException {
-  // HashMap<String, Object> newResponse = new HashMap<>();
-  // User currentUser = this.securityService.validateUser(theUser);
-
-  // if (currentUser != null) {
-  // String code2fa = this.mfaService.generateCode();
-  // // boolean status = this.notificationsService.sendCodeByEmail(currentUser,
-  // // code2fa);
-
-  // // if (!status) {
-  // // response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-  // // return null;
-  // // }
-
-  // Session currentSession = new Session(code2fa, currentUser);
-  // this.sessionRepository.save(currentSession);
-
-  // response.setStatus(HttpServletResponse.SC_ACCEPTED);
-  // currentUser.setPassword("");
-  // String token = this.jwtService.generateToken(currentUser);
-
-  // newResponse.put("user", currentUser);
-  // newResponse.put("token", token);
-  // return newResponse;
-  // }
-
-  // response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-  // return null;
-  // }
 
   /**
    * Verifies the 2FA code sent by the user and returns a JWT token if the code is
