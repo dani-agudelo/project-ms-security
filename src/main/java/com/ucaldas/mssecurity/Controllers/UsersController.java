@@ -73,7 +73,9 @@ public class UsersController {
     if (theActualUser != null) {
       theActualUser.setName(theNewUser.getName());
       theActualUser.setEmail(theNewUser.getEmail());
-      theActualUser.setPassword(theEncryptionService.convertSHA256(theNewUser.getPassword()));
+      if (theNewUser.getPassword() != null) {
+        theActualUser.setPassword(theNewUser.getPassword());
+      }
       return this.theUserRepository.save(theActualUser);
     } else {
       return null;
