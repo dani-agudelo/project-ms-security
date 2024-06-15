@@ -40,12 +40,40 @@ public class SecurityController {
   @Autowired
   private UserRepository userRepository;
 
+  // @PostMapping("login")
+  // public User login(@RequestBody User theUser, final HttpServletResponse
+  // response)
+  // throws IOException {
+  // User currentUser = this.securityService.validateUser(theUser);
+
+  // if (currentUser != null) {
+  // String code2fa = this.mfaService.generateCode();
+  // boolean status = this.notificationsService.sendCodeByEmail(currentUser,
+  // code2fa);
+
+  // if (!status) {
+  // response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+  // return null;
+  // }
+
+  // Session currentSession = new Session(code2fa, currentUser);
+  // this.sessionRepository.save(currentSession);
+
+  // response.setStatus(HttpServletResponse.SC_ACCEPTED);
+  // currentUser.setPassword("");
+  // return currentUser;
+  // }
+
+  // response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+  // return null;
+  // }
   @PostMapping("login")
   public User login(@RequestBody User theUser, final HttpServletResponse response)
       throws IOException {
     User currentUser = this.securityService.validateUser(theUser);
 
     if (currentUser != null) {
+      System.out.println("currentUser" + currentUser);
       String code2fa = this.mfaService.generateCode();
       boolean status = this.notificationsService.sendCodeByEmail(currentUser, code2fa);
 
@@ -66,17 +94,52 @@ public class SecurityController {
     return null;
   }
 
+  // @PostMapping("login")
+  // public HashMap<String, Object> login(@RequestBody User theUser, final
+  // HttpServletResponse response)
+  // throws IOException {
+  // HashMap<String, Object> newResponse = new HashMap<>();
+  // User currentUser = this.securityService.validateUser(theUser);
+
+  // if (currentUser != null) {
+  // String code2fa = this.mfaService.generateCode();
+  // // boolean status = this.notificationsService.sendCodeByEmail(currentUser,
+  // // code2fa);
+
+  // // if (!status) {
+  // // response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+  // // return null;
+  // // }
+
+  // Session currentSession = new Session(code2fa, currentUser);
+  // this.sessionRepository.save(currentSession);
+
+  // response.setStatus(HttpServletResponse.SC_ACCEPTED);
+  // currentUser.setPassword("");
+  // String token = this.jwtService.generateToken(currentUser);
+
+  // newResponse.put("user", currentUser);
+  // newResponse.put("token", token);
+  // return newResponse;
+  // }
+
+  // response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+  // return null;
+  // }
+
   /**
-   * Verifies the 2FA code sent by the user and returns a JWT token if the code is correct.
+   * Verifies the 2FA code sent by the user and returns a JWT token if the code is
+   * correct.
    * Here, the code is sent in the request body.
+   * 
    * @param credentials
    * @param response
    * @return
    * @throws IOException
    */
   @PostMapping("verify-2fa")
-  public String verify2fa(
-      @RequestBody HashMap<String, String> credentials, final HttpServletResponse response)
+  public HashMap<String, Object> verify2fa(@RequestBody HashMap<String, String> credentials,
+      final HttpServletResponse response)
       throws IOException {
     Session session = this.securityService.validateCode2fa(credentials);
     if (session != null) {
@@ -88,16 +151,23 @@ public class SecurityController {
       sessionRepository.save(session);
 
       response.setStatus(HttpServletResponse.SC_ACCEPTED);
-      return token;
+      HashMap<String, Object> responseBody = new HashMap<>();
+      responseBody.put("token", token);
+      responseBody.put("user", currentUser);
+
+      System.out.println("response" + responseBody);
+      return responseBody;
     }
 
     response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-    return "";
+    return null;
   }
 
   /**
-   * Verifies the 2FA code sent by the user and returns a JWT token if the code is correct.
+   * Verifies the 2FA code sent by the user and returns a JWT token if the code is
+   * correct.
    * Here, the code is sent in the URL.
+   * 
    * @param userId
    * @param code2fa
    * @param response
@@ -105,7 +175,7 @@ public class SecurityController {
    * @throws IOException
    */
   @PostMapping("users/{userId}/verify-2fa/{code2fa}")
-  public String verify2fa(
+  public HashMap<String, Object> verify2fa(
       @PathVariable String userId, @PathVariable String code2fa, final HttpServletResponse response)
       throws IOException {
     HashMap<String, String> credentials = new HashMap<>();
@@ -115,7 +185,9 @@ public class SecurityController {
   }
 
   /**
-   * Verifies the new password sent by the user and returns the user if the password is correct.
+   * Verifies the new password sent by the user and returns the user if the
+   * password is correct.
+   * 
    * @param credentials
    * @param response
    * @return the user
@@ -126,7 +198,7 @@ public class SecurityController {
       @RequestBody HashMap<String, String> credentials, final HttpServletResponse response)
       throws IOException {
     User currentUser = this.userRepository.getUserByEmail(credentials.get("email"));
-
+        System.out.println("currentUser desde pr" + currentUser);
     if (currentUser != null) {
       String newPassword = this.encryptionService.generatePassword();
       boolean status = this.notificationsService.sendPasswordResetEmail(currentUser, newPassword);
@@ -150,6 +222,7 @@ public class SecurityController {
 
   /**
    * Verifies if the user has the necessary permissions to access a resource.
+   * 
    * @param request
    * @param thePermission
    * @return
@@ -166,7 +239,7 @@ public class SecurityController {
    */
   @GetMapping("token-validation")
   public User tokenValidation(final HttpServletRequest request) {
-    User thUser= this.theValidatorsService.getUser(request);
+    User thUser = this.theValidatorsService.getUser(request);
     return thUser;
   }
 }

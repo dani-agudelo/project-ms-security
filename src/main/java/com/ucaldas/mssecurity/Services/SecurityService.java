@@ -18,6 +18,9 @@ public class SecurityService {
   @Autowired private EncryptionService encryptionService;
   @Autowired private SessionRepository sessionRepository;
 
+  /**
+   * Validates the user's credentials. Finds the user by email and compares the password.
+   */
   public User validateUser(User user) {
     User currentUser = this.userRepository.getUserByEmail(user.getEmail());
     boolean isvalid =
