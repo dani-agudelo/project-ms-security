@@ -13,6 +13,7 @@ public class User {
     private String name;
     private String email;
     private String password;
+    private String user_github;
     @DBRef
     private Role role;
 
@@ -56,6 +57,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getUser_github() {
+        return this.user_github;
+    }
+
+    public void setUser_github(String user_github) {
+        this.user_github = user_github;
     }
 
     public Role getRole() {
