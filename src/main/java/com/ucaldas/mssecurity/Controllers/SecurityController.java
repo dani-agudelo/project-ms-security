@@ -40,7 +40,6 @@ public class SecurityController {
   @Autowired
   private UserRepository userRepository;
 
-  
   /**
    * Validates the user's credentials and sends a 2FA code to the user's email.
    * 
@@ -147,7 +146,7 @@ public class SecurityController {
       @RequestBody HashMap<String, String> credentials, final HttpServletResponse response)
       throws IOException {
     User currentUser = this.userRepository.getUserByEmail(credentials.get("email"));
-        System.out.println("currentUser desde pr" + currentUser);
+    System.out.println("currentUser desde pr" + currentUser);
     if (currentUser != null) {
       String newPassword = this.encryptionService.generatePassword();
       boolean status = this.notificationsService.sendPasswordResetEmail(currentUser, newPassword);
@@ -190,5 +189,25 @@ public class SecurityController {
   public User tokenValidation(final HttpServletRequest request) {
     User thUser = this.theValidatorsService.getUser(request);
     return thUser;
+  }
+
+  @PostMapping("changePassword")
+  public User changePassword(@RequestBody HashMap<String, String> credentials, final HttpServletResponse response)
+      throws IOException {
+    User currentUser = this.userRepository.getUserByEmail(credentials.get("email"));
+    System.err.println("currentUser" + currentUser);
+    if (currentUser != null) {
+      // verifica si la contraseña actual es correcta
+      if (currentUser.getPassword().equals(this.encryptionService.convertSHA256(credentials.get("password")))) {
+        currentUser.setPassword(this.encryptionService.convertSHA256(credentials.get("newPassword")));
+        this.userRepository.save(currentUser);
+        currentUser.setPassword("");
+
+        response.setStatus(HttpServletResponse.SC_ACCEPTED);
+        return currentUser;
+      }
+    }
+    response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+    return null;
   }
 }

@@ -14,7 +14,7 @@ import java.util.List;
 
 @CrossOrigin
 @RestController
-@RequestMapping("api/role-permission")
+@RequestMapping("api/role_permission")
 public class RolePermissionController {
     @Autowired
     private RoleRepository theRoleRepository;
