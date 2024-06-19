@@ -73,7 +73,9 @@ public class UsersController {
     if (theActualUser != null) {
       theActualUser.setName(theNewUser.getName());
       theActualUser.setEmail(theNewUser.getEmail());
-      theActualUser.setPassword(theEncryptionService.convertSHA256(theNewUser.getPassword()));
+      if (theNewUser.getPassword() != null) {
+        theActualUser.setPassword(theNewUser.getPassword());
+      }
       return this.theUserRepository.save(theActualUser);
     } else {
       return null;
@@ -101,7 +103,10 @@ public class UsersController {
 
     if (theActualUser != null && theActualRole != null) {
       theActualUser.setRole(theActualRole);
-      return this.theUserRepository.save(theActualUser);
+      this.theUserRepository.save(theActualUser);
+      theActualUser.setPassword("");
+      return theActualUser;
+
     } else {
       return null;
     }
@@ -121,7 +126,9 @@ public class UsersController {
         // Si el usuario tiene el rol
         && theActualUser.getRole().get_id().equals(roleId)) {
       theActualUser.setRole(null);
-      return this.theUserRepository.save(theActualUser);
+      this.theUserRepository.save(theActualUser);
+      theActualUser.setPassword("");
+      return theActualUser;
     } else {
       return null;
     }
