@@ -11,7 +11,6 @@ import com.ucaldas.mssecurity.Services.MfaService;
 import com.ucaldas.mssecurity.Services.NotificationsService;
 import com.ucaldas.mssecurity.Services.SecurityService;
 import com.ucaldas.mssecurity.Services.ValidatorsService;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -23,26 +22,18 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/public/security")
 public class SecurityController {
-  @Autowired
-  private JwtService jwtService;
-  @Autowired
-  private MfaService mfaService;
-  @Autowired
-  private SecurityService securityService;
-  @Autowired
-  private EncryptionService encryptionService;
-  @Autowired
-  private NotificationsService notificationsService;
-  @Autowired
-  private ValidatorsService theValidatorsService;
-  @Autowired
-  private SessionRepository sessionRepository;
-  @Autowired
-  private UserRepository userRepository;
+  @Autowired private JwtService jwtService;
+  @Autowired private MfaService mfaService;
+  @Autowired private SecurityService securityService;
+  @Autowired private EncryptionService encryptionService;
+  @Autowired private NotificationsService notificationsService;
+  @Autowired private ValidatorsService theValidatorsService;
+  @Autowired private SessionRepository sessionRepository;
+  @Autowired private UserRepository userRepository;
 
   /**
    * Validates the user's credentials and sends a 2FA code to the user's email.
-   * 
+   *
    * @param theUser
    * @param response
    * @return
@@ -75,19 +66,34 @@ public class SecurityController {
     return null;
   }
 
+  @PostMapping("register")
+  public User register(@RequestBody User theUser, final HttpServletResponse response)
+      throws IOException {
+    if (this.userRepository.getUserByEmail(theUser.getEmail()) != null) {
+      response.sendError(HttpServletResponse.SC_CONFLICT);
+      return null;
+    }
+
+    theUser.setPassword(this.encryptionService.convertSHA256(theUser.getPassword()));
+    User currentUser = this.userRepository.save(theUser);
+    currentUser.setPassword("");
+
+    response.setStatus(HttpServletResponse.SC_CREATED);
+    return currentUser;
+  }
+
   /**
-   * Verifies the 2FA code sent by the user and returns a JWT token if the code is
-   * correct.
-   * Here, the code is sent in the request body.
-   * 
+   * Verifies the 2FA code sent by the user and returns a JWT token if the code is correct. Here,
+   * the code is sent in the request body.
+   *
    * @param credentials
    * @param response
    * @return
    * @throws IOException
    */
   @PostMapping("verify-2fa")
-  public HashMap<String, Object> verify2fa(@RequestBody HashMap<String, String> credentials,
-      final HttpServletResponse response)
+  public HashMap<String, Object> verify2fa(
+      @RequestBody HashMap<String, String> credentials, final HttpServletResponse response)
       throws IOException {
     Session session = this.securityService.validateCode2fa(credentials);
     if (session != null) {
@@ -112,10 +118,9 @@ public class SecurityController {
   }
 
   /**
-   * Verifies the 2FA code sent by the user and returns a JWT token if the code is
-   * correct.
-   * Here, the code is sent in the URL.
-   * 
+   * Verifies the 2FA code sent by the user and returns a JWT token if the code is correct. Here,
+   * the code is sent in the URL.
+   *
    * @param userId
    * @param code2fa
    * @param response
@@ -133,9 +138,8 @@ public class SecurityController {
   }
 
   /**
-   * Verifies the new password sent by the user and returns the user if the
-   * password is correct.
-   * 
+   * Verifies the new password sent by the user and returns the user if the password is correct.
+   *
    * @param credentials
    * @param response
    * @return the user
@@ -170,21 +174,21 @@ public class SecurityController {
 
   /**
    * Verifies if the user has the necessary permissions to access a resource.
-   * 
+   *
    * @param request
    * @param thePermission
    * @return
    */
   @PostMapping("/permissions-validation")
-  public boolean permissionsValidation(final HttpServletRequest request, @RequestBody Permission thePermission) {
-    boolean success = this.theValidatorsService.validationRolePermission(request, thePermission.getUrl(),
-        thePermission.getMethod());
+  public boolean permissionsValidation(
+      final HttpServletRequest request, @RequestBody Permission thePermission) {
+    boolean success =
+        this.theValidatorsService.validationRolePermission(
+            request, thePermission.getUrl(), thePermission.getMethod());
     return success;
   }
 
-  /**
-   * Validate the token and return the user.
-   */
+  /** Validate the token and return the user. */
   @GetMapping("token-validation")
   public User tokenValidation(final HttpServletRequest request) {
     User thUser = this.theValidatorsService.getUser(request);
@@ -192,14 +196,18 @@ public class SecurityController {
   }
 
   @PostMapping("changePassword")
-  public User changePassword(@RequestBody HashMap<String, String> credentials, final HttpServletResponse response)
+  public User changePassword(
+      @RequestBody HashMap<String, String> credentials, final HttpServletResponse response)
       throws IOException {
     User currentUser = this.userRepository.getUserByEmail(credentials.get("email"));
     System.err.println("currentUser" + currentUser);
     if (currentUser != null) {
       // verifica si la contraseña actual es correcta
-      if (currentUser.getPassword().equals(this.encryptionService.convertSHA256(credentials.get("password")))) {
-        currentUser.setPassword(this.encryptionService.convertSHA256(credentials.get("newPassword")));
+      if (currentUser
+          .getPassword()
+          .equals(this.encryptionService.convertSHA256(credentials.get("password")))) {
+        currentUser.setPassword(
+            this.encryptionService.convertSHA256(credentials.get("newPassword")));
         this.userRepository.save(currentUser);
         currentUser.setPassword("");
 
