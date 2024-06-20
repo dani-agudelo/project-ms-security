@@ -1,5 +1,7 @@
+FROM ubuntu:latest as runtime
+
 # Use an official Maven image to build the project
-FROM maven:3.8.6-openjdk-17 AS build
+RUN apt-get update && apt-get install -y maven openjdk-17-jdk
 
 # Set the working directory in the container
 WORKDIR /app
@@ -16,7 +18,6 @@ COPY src ./src
 RUN mvn clean install
 
 # Use a minimal base image to reduce the size of the final image
-FROM openjdk:17-jdk-slim
 
 # Set the working directory in the container
 WORKDIR /app
