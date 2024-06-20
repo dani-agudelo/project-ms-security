@@ -1,29 +1,21 @@
-FROM ubuntu:latest as runtime
+# Usa una imagen base de OpenJDK para compilar y ejecutar la aplicación
+FROM openjdk:17-jdk-alpine
 
-# Use an official Maven image to build the project
-RUN apt-get update && apt-get install -y maven openjdk-17-jdk
-
-# Set the working directory in the container
+# Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copy the pom.xml and download dependencies
+# Copia el archivo pom.xml y las dependencias del proyecto para compilarlas
 COPY pom.xml ./
-RUN mvn dependency:go-offline
-
-
-# Copy the rest of the application source code
 COPY src ./src
 
-# Package the application
-RUN mvn clean install
+# Compila la aplicación usando Maven
+RUN ./mvnw package -DskipTests
 
-# Use a minimal base image to reduce the size of the final image
+# Expone el puerto en el que la aplicación se ejecutará
+EXPOSE 8080
 
-# Set the working directory in the container
-WORKDIR /app
+# Define las variables de entorno
+ENV SPRING_PROFILES_ACTIVE=default
 
-# Copy the JAR file from the build stage
-COPY /app/target/*.jar app.jar
-
-# Run the JAR file
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Establece el comando de inicio para la aplicación
+CMD ["java", "-jar", "target/*.jar"]
