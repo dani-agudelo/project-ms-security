@@ -23,7 +23,7 @@ RUN mvn clean install
 WORKDIR /app
 
 # Copy the JAR file from the build stage
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=runtime /app/target/*.jar app.jar
 
 # Run the JAR file
 ENTRYPOINT ["java", "-jar", "app.jar"]
