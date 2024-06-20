@@ -1,5 +1,5 @@
 # Usa una imagen base de Maven para compilar y empaquetar la aplicación
-FROM maven:3.8.6-openjdk-17 AS build
+FROM maven:3.8.6-openjdk-17-slim AS build
 
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
@@ -12,7 +12,7 @@ COPY src ./src
 RUN mvn package -DskipTests
 
 # Usa una imagen base más ligera para la ejecución de la aplicación
-FROM openjdk:17-jdk-alpine
+FROM openjdk:17-jdk-slim
 
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
